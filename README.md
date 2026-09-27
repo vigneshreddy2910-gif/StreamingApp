@@ -38,18 +38,6 @@ The application is deployed on **Amazon Elastic Kubernetes Service (EKS)** using
 
 ---
 
-# System Architecture
-
-> Insert architecture screenshot here.
-
-**Suggested file**
-
-`docs/architecture/architecture.png`
-
-The platform follows a microservice architecture where all client traffic enters through a single AWS Application Load Balancer and is routed to individual Kubernetes services.
-
----
-
 # Technology Stack
 
 | Category         | Technology                                 |
@@ -87,7 +75,6 @@ StreamingApp/
 │       ├── values.yaml
 │       └── templates/
 │
-├── docs/
 │
 └── README.md
 ```
@@ -106,8 +93,6 @@ Each microservice was containerized independently.
 | streamingapp-chat      | 1.0.20  |
 | streamingapp-frontend  | 1.0.20  |
 
-> Insert ECR/Jenkins build screenshot.
-
 ---
 
 # Kubernetes Resources
@@ -124,7 +109,6 @@ The application was translated from Docker Compose into Kubernetes resources.
 | PersistentVolumeClaim | Persistent database storage       |
 | Ingress               | External routing through ALB      |
 
-> Insert Kubernetes resources screenshot.
 
 ---
 
@@ -155,8 +139,6 @@ helm install streamingapp ./helm/streamingapp \
 helm upgrade streamingapp ./helm/streamingapp
 ```
 
-> Insert Helm deployment screenshot.
-
 ---
 
 # Ingress Routing
@@ -171,7 +153,6 @@ A single AWS Application Load Balancer exposes every service.
 | `/api/admin`     | Admin Service     |
 | `/api/chat`      | Chat Service      |
 
-> Insert ALB / Ingress screenshot.
 
 ---
 
@@ -194,7 +175,6 @@ Pipeline Result:
 * Deployment: **Amazon EKS**
 * Helm Release: **Revision 9**
 
-> Insert Jenkins success screenshot.
 
 ---
 
@@ -213,7 +193,6 @@ Frontend replicas were increased successfully inside the Kubernetes cluster.
 
 The rollout completed successfully using Kubernetes Deployment strategy.
 
-> Insert rollout/scaling screenshot.
 
 ---
 
@@ -231,15 +210,11 @@ A new user account was registered and authenticated successfully through the Aut
 
 The Admin Service uploads videos and thumbnails to Amazon S3 while storing metadata in MongoDB.
 
-> Insert upload screenshot.
-
 ---
 
 ## Video Playback
 
 Uploaded videos are available in the Streaming Service catalogue and stream successfully through the frontend.
-
-> Insert playback screenshot.
 
 ---
 
@@ -255,9 +230,6 @@ Evidence included:
 
 Video:
 
-`docs/verification/live-chat-demo.mp4`
-
-> Insert chat screenshot.
 
 ---
 
@@ -267,7 +239,6 @@ A running application pod was deleted manually.
 
 Kubernetes automatically recreated the pod, restoring the desired replica count without affecting application availability.
 
-> Insert self-healing screenshot.
 
 ---
 
@@ -286,8 +257,6 @@ Verification command:
 ```bash
 kubectl get pods,svc,ingress -A
 ```
-
-> Insert final kubectl screenshot.
 
 ---
 
@@ -330,3 +299,43 @@ kubectl get ingress -n streaming-app
 # Project Outcome
 
 The StreamingApp platform was successfully containerized, deployed, exposed, scaled, and verified on Amazon EKS using Kubernetes and Helm. A complete Jenkins CI/CD pipeline automates image delivery from GitHub to Amazon ECR and performs zero-downtime deployments into the Kubernetes cluster.
+
+# Images
+
+<img width="1408" height="258" alt="06-ecr-repositories" src="https://github.com/user-attachments/assets/8362533c-ce0d-4ae6-993b-bc1a098162d6" />
+
+<img width="1917" height="938" alt="07-jenkins-auto-trigger" src="https://github.com/user-attachments/assets/2d094a15-d867-4b98-bb8c-1b050e36ed80" />
+
+<img width="1757" height="931" alt="08-eks-cluster-created" src="https://github.com/user-attachments/assets/fd13338c-487a-4405-91ab-5a41037fcf02" />
+<img width="1767" height="725" alt="Screenshot 2026-09-26 220141" src="https://github.com/user-attachments/assets/2ae46afd-759e-459b-a360-c6e9a5902a35" />
+
+<img width="1047" height="310" alt="Screenshot 2026-09-26 221209" src="https://github.com/user-attachments/assets/63105d3f-4615-4bac-88d6-3200dd40e3d7" />
+
+<img width="1355" height="603" alt="Screenshot 2026-09-26 221956" src="https://github.com/user-attachments/assets/eefdebf9-e088-4159-995e-b8f317ef330a" />
+
+<img width="1442" height="603" alt="Screenshot 2026-09-27 101856" src="https://github.com/user-attachments/assets/60c821ce-dfab-43ac-9d25-c45240683a28" />
+
+<img width="1393" height="418" alt="Screenshot 2026-09-27 110519" src="https://github.com/user-attachments/assets/b9fe1f3a-93ca-4a85-8cdd-720286b281d5" />
+
+<img width="1392" height="360" alt="Screenshot 2026-09-27 111019" src="https://github.com/user-attachments/assets/9432a9fb-63de-422e-8366-d4b7041bed8f" />
+<img width="1297" height="550" alt="Screenshot 2026-09-27 111034" src="https://github.com/user-attachments/assets/84471a26-705d-4250-a47a-579d38f4335e" />
+<img width="1180" height="311" alt="Screenshot 2026-09-27 111311" src="https://github.com/user-attachments/assets/95fbf8a4-44ec-4a86-ab9e-4d787dba482c" />
+
+<img width="962" height="665" alt="Screenshot 2026-09-27 130328" src="https://github.com/user-attachments/assets/f2276227-9f69-4aae-9dd4-b639f0482e3e" />
+
+<img width="1917" height="1031" alt="Screenshot 2026-09-27 143253" src="https://github.com/user-attachments/assets/4fbe1466-e86c-489d-8fcf-82344c07992e" />
+
+<img width="1467" height="242" alt="Screenshot 2026-09-27 155616" src="https://github.com/user-attachments/assets/6151256d-30a9-4c48-a520-f3a66c00c756" />
+<img width="812" height="726" alt="Screenshot 2026-09-27 155836" src="https://github.com/user-attachments/assets/acfe2c85-63f1-48dc-af89-5883019a12ea" />
+<img width="812" height="726" alt="Screenshot 2026-09-27 155836" src="https://github.com/user-attachments/assets/594a375d-2725-4fcd-8f6a-1bfd473f49d0" />
+
+<img width="1520" height="850" alt="Screenshot 2026-09-27 165539" src="https://github.com/user-attachments/assets/1ceb7486-1da6-4543-9e45-a6920628867c" />
+<img width="1470" height="197" alt="Screenshot 2026-09-27 170244" src="https://github.com/user-attachments/assets/407e2040-d8f1-474d-a2f1-781a3f6e0e8e" />
+
+<img width="1901" height="970" alt="Screenshot 2026-09-27 181143" src="https://github.com/user-attachments/assets/6f29b6fb-200b-41e0-8a60-ea023aa3c0db" />
+<img width="1900" height="972" alt="Screenshot 2026-09-27 181157" src="https://github.com/user-attachments/assets/249a6975-e61e-4bdb-9399-44850cb211e6" />
+<img width="1902" height="897" alt="Screenshot 2026-09-27 181218" src="https://github.com/user-attachments/assets/079c63df-86a4-446e-b16a-6c0adc381bc7" />
+
+
+<img width="1102" height="827" alt="Screenshot 2026-09-27 193518" src="https://github.com/user-attachments/assets/a3c61292-8814-4ce7-8f47-f08ef0adada8" />
+
