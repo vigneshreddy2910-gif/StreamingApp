@@ -35,7 +35,10 @@ const healthCheckRoute = require('./routes/healthCheck.route');
 const userRoute = require('./routes/user.route');
 
 app.use('/health', healthCheckRoute);
-app.use('/api', userRoute); // Changed from /apiv1 to /api
+
+// Support the original API path and the Kubernetes Ingress path.
+app.use('/api', userRoute);
+app.use('/api/auth', userRoute);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

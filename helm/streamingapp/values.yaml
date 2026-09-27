@@ -1,0 +1,98 @@
+namespace: streaming-app
+
+images:
+  frontend:
+    repository: 457660516966.dkr.ecr.us-east-1.amazonaws.com/streamingapp-frontend
+    tag: "1.0.12"
+    pullPolicy: IfNotPresent
+
+  auth:
+    repository: 457660516966.dkr.ecr.us-east-1.amazonaws.com/streamingapp-auth
+    tag: "1.0.12"
+    pullPolicy: IfNotPresent
+
+  streaming:
+    repository: 457660516966.dkr.ecr.us-east-1.amazonaws.com/streamingapp-streaming
+    tag: "1.0.11"
+    pullPolicy: IfNotPresent
+
+  admin:
+    repository: 457660516966.dkr.ecr.us-east-1.amazonaws.com/streamingapp-admin
+    tag: "1.0.11"
+    pullPolicy: IfNotPresent
+
+  chat:
+    repository: 457660516966.dkr.ecr.us-east-1.amazonaws.com/streamingapp-chat
+    tag: "1.0.11"
+    pullPolicy: IfNotPresent
+
+  mongodb:
+    repository: mongo
+    tag: "6"
+    pullPolicy: IfNotPresent
+
+replicaCount:
+  frontend: 3
+  auth: 2
+  streaming: 2
+  admin: 2
+  chat: 2
+
+service:
+  frontend:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+
+  auth:
+    type: ClusterIP
+    port: 3001
+    targetPort: 3001
+
+  streaming:
+    type: ClusterIP
+    port: 3002
+    targetPort: 3002
+
+  admin:
+    type: ClusterIP
+    port: 3003
+    targetPort: 3003
+
+  chat:
+    type: ClusterIP
+    port: 3004
+    targetPort: 3004
+
+mongodb:
+  service:
+    port: 27017
+
+  replicaCount: 1
+
+  storage:
+    size: 8Gi
+    storageClassName: gp2
+
+config:
+  mongoDb: streamingapp
+  mongoUri: mongodb://mongodb:27017/streamingapp
+  clientUrls: "http://k8s-streamin-streamin-6db1e21b87-1743341166.us-east-1.elb.amazonaws.com"
+  awsRegion: us-east-1
+  awsS3Bucket: streamingapp-vignesh-457660516966
+  authPort: "3001"
+  streamingPort: "3002"
+  adminPort: "3003"
+  chatPort: "3004"
+  streamingPublicUrl: "http://k8s-streamin-streamin-6db1e21b87-1743341166.us-east-1.elb.amazonaws.com"
+
+secret:
+  jwtSecret: changeme
+
+ingress:
+  enabled: true
+  className: alb
+  scheme: internet-facing
+  targetType: ip
+  host: ""
+  listenPorts: '[{"HTTP":80}]'
