@@ -1,140 +1,332 @@
-# StreamingApp
+# StreamingApp — Container Orchestration on Kubernetes
 
-Stream premium video content, host live watch parties, and manage your catalogue with a modern microservice architecture. The platform now ships with a production-ready admin portal, real-time chat, S3-backed adaptive streaming, and a redesigned cinematic frontend experience.
+A complete end-to-end deployment of a **5-service streaming platform** using **Docker, Amazon EKS, Kubernetes, Helm, Jenkins CI/CD, Amazon ECR, MongoDB, and AWS Application Load Balancer**.
 
-## Architecture
+This project was completed as part of the **Container Orchestration Assignment (DevOps Track)** and demonstrates packaging, deploying, exposing, scaling, and verifying a microservices-based application on Kubernetes.
 
-| Service | Port | Description |
-| --- | --- | --- |
-| `authService` | 3001 | User authentication, registration, JWT issuance |
-| `streamingService` | 3002 | Video catalogue, S3 playback endpoints, public APIs |
-| `adminService` | 3003 | Dedicated admin microservice for asset management and uploads |
-| `chatService` | 3004 | Websocket + REST chat for live watch parties |
-| `frontend` | 3000 | React SPA with revamped UI and integrated chat |
-| `mongo` | 27017 | Shared MongoDB instance |
+---
 
-All backend services share common database models and utilities through `backend/common`.
+## Project Overview
 
-## Environment Configuration
+StreamingApp consists of five independent services and one shared MongoDB database.
 
-Create an `.env` for each service (or export variables before running). All services accept the standard AWS credentials for S3 access.
+| Service           |  Port | Purpose                         |
+| ----------------- | ----: | ------------------------------- |
+| Frontend          |    80 | React SPA served through Nginx  |
+| Auth Service      |  3001 | Registration, Login & JWT       |
+| Streaming Service |  3002 | Video catalogue & playback      |
+| Admin Service     |  3003 | Video upload & asset management |
+| Chat Service      |  3004 | WebSocket live chat             |
+| MongoDB           | 27017 | Persistent application database |
 
-### Auth Service (`backend/authService/.env`)
-```ini
-PORT=3001
-MONGO_URI=mongodb://localhost:27017/streamingapp
-JWT_SECRET=changeme
-CLIENT_URLS=http://localhost:3000
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_REGION=ap-south-1
-AWS_S3_BUCKET=
+The application is deployed on **Amazon Elastic Kubernetes Service (EKS)** using **Helm**, while **Jenkins** automatically builds Docker images, pushes them to **Amazon ECR**, and deploys new versions to the cluster.
+
+---
+
+# Assignment Objectives Achieved
+
+* Containerized all five services using Docker
+* Built and versioned images in Amazon ECR
+* Created Kubernetes Deployments and Services
+* Configured ConfigMaps and Secrets
+* Deployed MongoDB using StatefulSet with Persistent Volume
+* Packaged the platform as a Helm chart
+* Exposed the application through AWS ALB Ingress
+* Implemented rolling updates and replica scaling
+* Verified login, upload, playback, live chat, and self-healing
+* Automated CI/CD using Jenkins
+
+---
+
+# System Architecture
+
+> Insert architecture screenshot here.
+
+**Suggested file**
+
+`docs/architecture/architecture.png`
+
+The platform follows a microservice architecture where all client traffic enters through a single AWS Application Load Balancer and is routed to individual Kubernetes services.
+
+---
+
+# Technology Stack
+
+| Category         | Technology                                 |
+| ---------------- | ------------------------------------------ |
+| Cloud            | Amazon Web Services                        |
+| Containerization | Docker                                     |
+| Registry         | Amazon ECR                                 |
+| Orchestration    | Kubernetes (Amazon EKS)                    |
+| Packaging        | Helm 3                                     |
+| CI/CD            | Jenkins                                    |
+| Database         | MongoDB StatefulSet                        |
+| Frontend         | React + Nginx                              |
+| Backend          | Node.js                                    |
+| Networking       | AWS Load Balancer Controller + ALB Ingress |
+
+---
+
+# Repository Structure
+
+```text
+StreamingApp/
+├── backend/
+│   ├── authService/
+│   ├── streamingService/
+│   ├── adminService/
+│   └── chatService/
+│
+├── frontend/
+│
+├── kubernetes/
+│
+├── helm/
+│   └── streamingapp/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+│
+├── docs/
+│
+└── README.md
 ```
 
-### Streaming Service (`backend/streamingService/.env`)
-```ini
-PORT=3002
-MONGO_URI=mongodb://localhost:27017/streamingapp
-JWT_SECRET=changeme
-CLIENT_URLS=http://localhost:3000
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_REGION=ap-south-1
-AWS_S3_BUCKET=
-AWS_CDN_URL=
-STREAMING_PUBLIC_URL=http://localhost:3002
+---
+
+# Docker Containerization
+
+Each microservice was containerized independently.
+
+| Image                  | Version |
+| ---------------------- | ------- |
+| streamingapp-auth      | 1.0.20  |
+| streamingapp-streaming | 1.0.20  |
+| streamingapp-admin     | 1.0.20  |
+| streamingapp-chat      | 1.0.20  |
+| streamingapp-frontend  | 1.0.20  |
+
+> Insert ECR/Jenkins build screenshot.
+
+---
+
+# Kubernetes Resources
+
+The application was translated from Docker Compose into Kubernetes resources.
+
+| Resource              | Purpose                           |
+| --------------------- | --------------------------------- |
+| Deployment            | Runs each application service     |
+| Service               | Internal ClusterIP networking     |
+| ConfigMap             | Environment configuration         |
+| Secret                | Sensitive application credentials |
+| StatefulSet           | MongoDB deployment                |
+| PersistentVolumeClaim | Persistent database storage       |
+| Ingress               | External routing through ALB      |
+
+> Insert Kubernetes resources screenshot.
+
+---
+
+# Helm Deployment
+
+The entire platform is packaged into a reusable Helm chart.
+
+## Chart Structure
+
+```text
+helm/streamingapp/
+├── Chart.yaml
+├── values.yaml
+└── templates/
 ```
 
-### Admin Service (`backend/adminService/.env`)
-```ini
-PORT=3003
-MONGO_URI=mongodb://localhost:27017/streamingapp
-JWT_SECRET=changeme
-CLIENT_URLS=http://localhost:3000
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_REGION=ap-south-1
-AWS_S3_BUCKET=
-```
-
-### Chat Service (`backend/chatService/.env`)
-```ini
-PORT=3004
-MONGO_URI=mongodb://localhost:27017/streamingapp
-JWT_SECRET=changeme
-CLIENT_URLS=http://localhost:3000
-```
-
-### Frontend build variables (`frontend/.env` or Docker build args)
-```ini
-REACT_APP_AUTH_API_URL=http://localhost:3001/api
-REACT_APP_STREAMING_API_URL=http://localhost:3002/api
-REACT_APP_STREAMING_PUBLIC_URL=http://localhost:3002
-REACT_APP_ADMIN_API_URL=http://localhost:3003/api/admin
-REACT_APP_CHAT_API_URL=http://localhost:3004/api/chat
-REACT_APP_CHAT_SOCKET_URL=http://localhost:3004
-```
-
-## Running with Docker Compose
-
-1. Populate the environment variables above (or rely on the defaults baked into `docker-compose.yml`).
-2. Build and start the stack:
-   ```bash
-   docker-compose up --build
-   ```
-3. Navigate to `http://localhost:3000` for the web app.
-
-The compose file provisions MongoDB plus all four Node.js microservices. S3 credentials are optional for local testing—you can still browse seeded metadata, but streaming requires valid S3 objects.
-
-## Local Development
-
-Install dependencies for each service:
+## Install
 
 ```bash
-# auth service
-cd backend/authService && npm install
-
-# streaming service
-cd ../streamingService && npm install
-
-# admin service
-cd ../adminService && npm install
-
-# chat service
-cd ../chatService && npm install
-
-# frontend
-cd ../../frontend && npm install
+helm install streamingapp ./helm/streamingapp \
+  --namespace streaming-app \
+  --create-namespace
 ```
 
-Run the services (in separate terminals) after starting MongoDB:
+## Upgrade
 
 ```bash
-cd backend/authService && npm run dev
-cd backend/streamingService && npm run dev
-cd backend/adminService && npm run dev
-cd backend/chatService && npm run dev
-cd frontend && npm start
+helm upgrade streamingapp ./helm/streamingapp
 ```
 
-## Feature Highlights
+> Insert Helm deployment screenshot.
 
-- **S3-backed adaptive streaming** with secure signed uploads for admins.
-- **Dedicated admin microservice** for video ingestion, metadata management, and featured curation.
-- **Real-time chat** overlay in the player (Socket.IO + persistent message history).
-- **Modern React experience** featuring cinematic hero sections, dynamic carousels, and responsive design.
-- **Role-aware access control** across frontend routes and backend microservices.
+---
 
-## Testing
+# Ingress Routing
 
-Automated tests are not yet included. Recommended smoke checks:
+A single AWS Application Load Balancer exposes every service.
 
-1. Register and log in through the web UI.
-2. Upload a small video + thumbnail via the admin dashboard (requires valid S3 credentials).
-3. Confirm playback from the browse page and verify that chat messages broadcast between multiple browser tabs.
+| Path             | Backend           |
+| ---------------- | ----------------- |
+| `/`              | Frontend          |
+| `/api/auth`      | Auth Service      |
+| `/api/streaming` | Streaming Service |
+| `/api/admin`     | Admin Service     |
+| `/api/chat`      | Chat Service      |
 
-## License
+> Insert ALB / Ingress screenshot.
 
-MIT © StreamFlix Team
+---
 
-Jenkins webhook trigger verification.
+# Jenkins CI/CD Pipeline
+
+The deployment pipeline performs the following automatically:
+
+1. Checkout source from GitHub
+2. Build five Docker images
+3. Tag images with version `1.0.20`
+4. Push images to Amazon ECR
+5. Update Kubernetes manifests through Helm
+6. Verify rollout status of every Deployment
+
+Pipeline Result:
+
+* Build: **SUCCESS**
+* Images Built: **5**
+* Registry: **Amazon ECR**
+* Deployment: **Amazon EKS**
+* Helm Release: **Revision 9**
+
+> Insert Jenkins success screenshot.
+
+---
+
+# Scaling & Rolling Updates
+
+Replica scaling and rolling updates were implemented without downtime.
+
+### Replica Scaling
+
+Frontend replicas were increased successfully inside the Kubernetes cluster.
+
+### Rolling Update Strategy
+
+* `maxUnavailable = 0`
+* `maxSurge = 1`
+
+The rollout completed successfully using Kubernetes Deployment strategy.
+
+> Insert rollout/scaling screenshot.
+
+---
+
+# Application Verification
+
+## User Authentication
+
+A new user account was registered and authenticated successfully through the Auth Service.
+
+> Insert login screenshot.
+
+---
+
+## Video Upload
+
+The Admin Service uploads videos and thumbnails to Amazon S3 while storing metadata in MongoDB.
+
+> Insert upload screenshot.
+
+---
+
+## Video Playback
+
+Uploaded videos are available in the Streaming Service catalogue and stream successfully through the frontend.
+
+> Insert playback screenshot.
+
+---
+
+## Live Chat
+
+The WebSocket Chat Service was verified using two browser tabs.
+
+Evidence included:
+
+* Two-tab chat demonstration
+* Live broadcast of messages
+* Recorded verification video
+
+Video:
+
+`docs/verification/live-chat-demo.mp4`
+
+> Insert chat screenshot.
+
+---
+
+# Self-Healing Verification
+
+A running application pod was deleted manually.
+
+Kubernetes automatically recreated the pod, restoring the desired replica count without affecting application availability.
+
+> Insert self-healing screenshot.
+
+---
+
+# Final Cluster Verification
+
+The final cluster contains:
+
+* Running Pods
+* ClusterIP Services
+* AWS ALB Ingress
+* MongoDB StatefulSet
+* Helm Release
+
+Verification command:
+
+```bash
+kubectl get pods,svc,ingress -A
+```
+
+> Insert final kubectl screenshot.
+
+---
+
+# How to Deploy
+
+## Prerequisites
+
+* Docker
+* kubectl
+* Helm 3
+* AWS CLI
+* Amazon EKS Cluster
+* Jenkins (optional for CI/CD)
+
+## Clone Repository
+
+```bash
+git clone https://github.com/vigneshreddy2910-gif/StreamingApp.git
+cd StreamingApp
+```
+
+## Deploy with Helm
+
+```bash
+helm install streamingapp ./helm/streamingapp \
+  --namespace streaming-app \
+  --create-namespace
+```
+
+## Verify
+
+```bash
+kubectl get pods -n streaming-app
+kubectl get svc -n streaming-app
+kubectl get ingress -n streaming-app
+```
+
+---
+
+# Project Outcome
+
+The StreamingApp platform was successfully containerized, deployed, exposed, scaled, and verified on Amazon EKS using Kubernetes and Helm. A complete Jenkins CI/CD pipeline automates image delivery from GitHub to Amazon ECR and performs zero-downtime deployments into the Kubernetes cluster.
